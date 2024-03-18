@@ -153,3 +153,20 @@ img {
   margin: 2px 5px;
 }
 
+#delete_message{
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  margin: 10px 10px;
+  background-color: rgb(179, 36, 36);
+  border: none;
+  color: white;
+  padding: 5px 5px;
+  text-align: center;
+  text-decoration: none;
+  display: inline-block;
+  cursor: pointer;
+  font-size: 0.75rem;
+}
+
+
