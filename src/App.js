@@ -129,13 +129,17 @@ function ChatMessage(props) {
 
   const messageClass = uid === auth.currentUser.uid ? 'sent' : 'received';
 
-  return (<>
+  return (
     <div className={`message ${messageClass}`}>
       <img src={photoURL || 'https://api.adorable.io/avatars/23/abott@adorable.png'} />
       <p>{text}</p>
-      <button id="delete_message" onClick={() => deleteMessage(props.message)}><span role="img" aria-label="delete">🗑️</span></button>
+      {uid === auth.currentUser.uid && (
+        <button id="delete_message" onClick={() => deleteMessage(props.message)}>
+          <span role="img" aria-label="delete">🗑️</span>
+        </button>
+      )}
     </div>
-  </>)
+  )
 }
 
 
