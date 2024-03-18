@@ -56,12 +56,12 @@ function SignIn() {
 
   return (
     <>
-      <h1>Chat Firebase</h1>
+      <h1 style={{ color: 'Orange' }} id="Tittle">Firebase Chat</h1>
       <button className="sign-in" onClick={signInWithEmail}>Sign in with Email</button>
       <br></br>
       <button className="sign-in" onClick={signInWithGoogle}>Sign in with Google</button>
       <br></br>
-      <a href="https://chat-firebase-9235e.web.app/">Registarse</a>
+      <a style={{ color: 'white' }} href="https://chat-firebase-9235e.web.app/">Registarse</a>
     </>
   )
 
