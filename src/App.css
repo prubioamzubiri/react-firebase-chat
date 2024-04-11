@@ -54,7 +54,7 @@ main::-webkit-scrollbar-thumb {
   background: #6649b8;
 }
 
-form {
+.sendMessage {
   height: 10vh;
   position: fixed;
   bottom: 0;
@@ -168,5 +168,4 @@ img {
   cursor: pointer;
   font-size: 0.75rem;
 }
-
 
