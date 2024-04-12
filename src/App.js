@@ -62,7 +62,7 @@ function SignIn() {
   const logInPop = () => {
     if(!isShowSignup){
       setIsShowSignup((isShowSignup) => !isShowSignup);
-  }
+    }
       setIsShowLogin((isShowLogin) => !isShowLogin);
   }
 
@@ -70,8 +70,7 @@ function SignIn() {
     if(!isShowLogin){
       setIsShowLogin((isShowLogin) => !isShowLogin);
     }
-    setIsShowSignup((isShowSignup) => !isShowSignup);
-    
+    setIsShowSignup((isShowSignup) => !isShowSignup);   
   }
 
   const signInWithEmail = () => {
@@ -85,19 +84,33 @@ function SignIn() {
     .catch((error) => {
       var errorCode = error.code;
       var errorMessage = error.message;
+      document.getElementById("errorMessage").innerHTML = "<h2>"+errorCode + " " + errorMessage + "</h2>";
     });
+
     setIsShowLogin((isShowLogin) => !isShowLogin);
   }
 
   const signUpWithEmail = () => {
     const email = document.getElementById("usernamesignup").value;
     const password = document.getElementById("passwordsignup").value;
-    auth.createUserWithEmailAndPassword(email, password);
+    auth.createUserWithEmailAndPassword(email, password).then((userCredential) => {
+      // Signed in
+      var user = userCredential.user;
+      // ...
+    }
+    ).catch((error) => {
+      var errorCode = error.code;
+      var errorMessage = error.message;
+      document.getElementById("errorMessage").innerHTML = "<h2>"+errorCode + " " + errorMessage + "</h2>";
+      // ..
+    });
     setIsShowSignup((isShowSignup) => !isShowSignup);
   }
 
   return (
     <>
+      <h1 style={{ color: 'orange' }}>Chat</h1>
+      <div id='errorMessage'></div>
       <button className="sign-in" onClick={logInPop}>Sign in with Email</button>
       <br></br>
       <button className="sign-in" onClick={signInWithGoogle}>Sign in with Google</button>
@@ -105,10 +118,9 @@ function SignIn() {
       <a style={{ color: 'white' }} onClick={SignUpPop} >Registarse</a>
         <div className="LoginPopUp">
           <LoginForm isShowLogin={isShowLogin} submit={signInWithEmail} searchId="signin" topText="Sign In" />
-        </div>
-        <div className="LoginPopUp">
           <LoginForm isShowLogin={isShowSignup} submit={signUpWithEmail} searchId="signup" topText="Sign Up" />
-        </div>     
+        </div>
+  
         
       </>
   )
@@ -179,7 +191,7 @@ function ChatMessage(props) {
 
   return (
     <div className={`message ${messageClass}`}>
-      <img src={photoURL || 'https://cdn4.iconfinder.com/data/icons/flat-pro-business-set-1/32/people-customer-unknown-512.png'} />
+      <img alt="Profile" src={photoURL || 'https://cdn4.iconfinder.com/data/icons/flat-pro-business-set-1/32/people-customer-unknown-512.png'} />
       <p>{text}</p>
       {uid === auth.currentUser.uid && (
         <button id="delete_message" onClick={() => deleteMessage(props.message)}>

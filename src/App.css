@@ -169,3 +169,9 @@ img {
   font-size: 0.75rem;
 }
 
+#errorMessage {
+  color: red;
+  font-size: 0.75rem;
+  margin: 0;
+  padding: 0;
+}

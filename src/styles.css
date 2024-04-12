@@ -10,16 +10,21 @@
     align-items: center;
     min-height: 1vh;
     max-height: 2vh;
+
   }
   
   .form-box{
+    display: flex;
     margin-top: 7vh;
-    opacity:80%;
+    opacity: 100%;
     background: black;
     padding-right: 80px;
     padding-left: 80px;
     border-radius: 20px;
     box-shadow: 10px 10px 10px 1px rgba(0, 0, 0, 0.2);
+    z-index: index;
+    opacity: 1;
+
   }
   
   .login-text{
@@ -84,12 +89,13 @@
   }
   
   .show {
-    display: block;
     transition: 800ms;
     opacity: 1;
   }
   
-  .show.active {
+  .activeshow {
+    display: flex;
     transform: translateY(100px) scale(0) rotateY(180deg);
     opacity: 0;
+
   }
