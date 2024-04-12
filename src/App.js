@@ -1,10 +1,9 @@
 import React, { useRef, useState } from 'react';
 import './App.css';
 
-import firebase from 'firebase/app';
-import 'firebase/firestore';
-import 'firebase/auth';
-//import 'firebase/analytics';
+import { initializeApp } from "firebase/app"
+import { getAuth, signInWithEmailAndPassword, GoogleAuthProvider, createUserWithEmailAndPassword, signOut } from 'firebase/auth';
+import { getFirestore, collection, deleteDoc, query, orderBy, limit, doc, serverTimestamp } from "firebase/firestore";
 
 import "./styles.css";
 import LoginForm from "./LoginForm";
@@ -13,7 +12,7 @@ import { useAuthState } from 'react-firebase-hooks/auth';
 import { useCollectionData } from 'react-firebase-hooks/firestore';
 
 
-firebase.initializeApp({
+const firebaseApp = initializeApp({
   apiKey: "AIzaSyAgee9r3urR8YvAeT5tjXl5UF8N8Ju7LwE",
   authDomain: "chat-firebase-9235e.firebaseapp.com",
   projectId: "chat-firebase-9235e",
@@ -22,9 +21,9 @@ firebase.initializeApp({
   appId: "1:760646584713:web:010ea1bbb2207eed37f958"
 })
 
-const auth = firebase.auth();
-const firestore = firebase.firestore();
-//const analytics = firebase.analytics();
+const auth = getAuth(firebaseApp);
+const db = getFirestore(firebaseApp);
+
 
 function App() {
 
@@ -55,7 +54,7 @@ function SignIn() {
 
 
   const signInWithGoogle = () => {
-    const provider = new firebase.auth.GoogleAuthProvider();
+    const provider = new GoogleAuthProvider();
     auth.signInWithPopup(provider);
   }
 
@@ -76,7 +75,7 @@ function SignIn() {
   const signInWithEmail = () => {
     const email = document.getElementById("usernamesignin").value;
     const password = document.getElementById("passwordsignin").value;
-    auth.signInWithEmailAndPassword(email, password).then((userCredential) => {
+    signInWithEmailAndPassword(email, password).then((userCredential) => {
       // Signed in
       var user = userCredential.user;
       // ...
@@ -93,7 +92,7 @@ function SignIn() {
   const signUpWithEmail = () => {
     const email = document.getElementById("usernamesignup").value;
     const password = document.getElementById("passwordsignup").value;
-    auth.createUserWithEmailAndPassword(email, password).then((userCredential) => {
+    createUserWithEmailAndPassword(email, password).then((userCredential) => {
       // Signed in
       var user = userCredential.user;
       // ...
@@ -129,17 +128,17 @@ function SignIn() {
 
 function SignOut() {
   return auth.currentUser && (
-    <button className="sign-out" onClick={() => auth.signOut()}>Sign Out</button>
+    <button className="sign-out" onClick={() => signOut()}>Sign Out</button>
   )
 }
 
 
 function ChatRoom() {
   const dummy = useRef();
-  const messagesRef = firestore.collection('messages');
-  const query = messagesRef.orderBy('createdAt').limit(25);
+  const messagesRef = collection(db, 'messages');
+  const q = query(messagesRef, orderBy("createdAt"), limit(25));
 
-  const [messages] = useCollectionData(query, { idField: 'id' });
+  const [messages] = useCollectionData(q, { idField: 'id' });
 
   const [formValue, setFormValue] = useState('');
 
@@ -151,7 +150,7 @@ function ChatRoom() {
 
     await messagesRef.add({
       text: formValue,
-      createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+      createdAt: serverTimestamp(),
       uid,
       photoURL
     })
@@ -179,9 +178,8 @@ function ChatRoom() {
   </>)
 }
 
-function deleteMessage(message) {
-  const messageRef = firestore.collection('messages').doc(message.id);
-  messageRef.delete();
+async function deleteMessage(message) {
+  await deleteDoc(doc(db, "messages", message.id));
 }
 
 function ChatMessage(props) {
