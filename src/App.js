@@ -74,7 +74,7 @@ function SignIn() {
   const signInWithEmail = () => {
     const email = document.getElementById("usernamesignin").value;
     const password = document.getElementById("passwordsignin").value;
-    signInWithEmailAndPassword(email, password).then((userCredential) => {
+    signInWithEmailAndPassword(auth, email, password).then((userCredential) => {
       // Signed in
       var user = userCredential.user;
       // ...
@@ -91,7 +91,7 @@ function SignIn() {
   const signUpWithEmail = () => {
     const email = document.getElementById("usernamesignup").value;
     const password = document.getElementById("passwordsignup").value;
-    createUserWithEmailAndPassword(email, password).then((userCredential) => {
+    createUserWithEmailAndPassword(auth, email, password).then((userCredential) => {
       // Signed in
       var user = userCredential.user;
       // ...
