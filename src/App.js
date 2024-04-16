@@ -2,7 +2,7 @@ import React, { useRef, useState } from 'react';
 import './App.css';
 
 import { initializeApp } from "firebase/app"
-import { getAuth, signInWithEmailAndPassword, GoogleAuthProvider, createUserWithEmailAndPassword, signOut } from 'firebase/auth';
+import { getAuth, signInWithEmailAndPassword, GoogleAuthProvider, signInWithPopup, createUserWithEmailAndPassword, signOut } from 'firebase/auth';
 import { getFirestore, collection, deleteDoc, query, orderBy, limit, doc, serverTimestamp } from "firebase/firestore";
 
 import "./styles.css";
@@ -53,9 +53,9 @@ function SignIn() {
   const [isShowSignup, setIsShowSignup] = useState(true);
 
 
-  const signInWithGoogle = () => {
+  const signInWithGoogle = async () => {
     const provider = new GoogleAuthProvider();
-    auth.signInWithPopup(provider);
+    const result = await signInWithPopup(auth, provider);
   }
 
   const logInPop = () => {
@@ -115,10 +115,10 @@ function SignIn() {
       <button className="sign-in" onClick={signInWithGoogle}>Sign in with Google</button>
       <br></br>
       <a style={{ color: 'white' }} onClick={SignUpPop} >Registarse</a>
-        <div className="LoginPopUp">
-          <LoginForm isShowLogin={isShowLogin} submit={signInWithEmail} searchId="signin" topText="Sign In" />
-          <LoginForm isShowLogin={isShowSignup} submit={signUpWithEmail} searchId="signup" topText="Sign Up" />
-        </div>
+      <div className="LoginPopUp">
+         <LoginForm isShowLogin={isShowLogin} submit={signInWithEmail} searchId="signin" topText="Sign In" />
+         <LoginForm isShowLogin={isShowSignup} submit={signUpWithEmail} searchId="signup" topText="Sign Up" />
+       </div>
   
         
       </>
@@ -168,7 +168,7 @@ function ChatRoom() {
 
     </main>
     
-    <form class='sendMessage' onSubmit={sendMessage}>
+    <form className='sendMessage' onSubmit={sendMessage}>
 
       <input value={formValue} onChange={(e) => setFormValue(e.target.value)} placeholder="say something nice" />
 
