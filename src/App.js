@@ -3,7 +3,7 @@ import './App.css';
 
 import { initializeApp } from "firebase/app"
 import { getAuth, signInWithEmailAndPassword, GoogleAuthProvider, signInWithPopup, createUserWithEmailAndPassword, signOut } from 'firebase/auth';
-import { setDoc, getDocs, getFirestore, collection, deleteDoc, orderBy, limit, doc, serverTimestamp, query } from "firebase/firestore";
+import { setDoc, getDocs, getFirestore, collection, deleteDoc, orderBy, limit, doc, serverTimestamp, query, Query, where, getDoc } from "firebase/firestore";
 
 import "./styles.css";
 import LoginForm from "./LoginForm";
@@ -203,8 +203,17 @@ function ChatRoom() {
   </>)
 }
 
-async function deleteMessage(message) {
-  await deleteDoc(doc(db, "messages", message.id));
+function deleteMessage(message) {  
+  //deleteDoc(doc(db, "messages", message));
+  var collectionRef = collection(db,"messages");
+  var q = query(collectionRef, where("uid", "==", message.uid), where("text", "==", message.text), where("createdAt", "==", message.createdAt));
+  var document = getDocs(q).then(async (querySnapshot) => {
+    const firstDoc = querySnapshot.docs[0];
+    var docId = firstDoc.id;
+    var documentRef = doc(db, "messages", docId)
+    await deleteDoc(documentRef);
+    // Do something with the first document
+  });
 }
 
 function ChatMessage(props) {
