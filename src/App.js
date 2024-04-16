@@ -1,9 +1,9 @@
-import React, { useRef, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import './App.css';
 
 import { initializeApp } from "firebase/app"
 import { getAuth, signInWithEmailAndPassword, GoogleAuthProvider, signInWithPopup, createUserWithEmailAndPassword, signOut } from 'firebase/auth';
-import { getFirestore, collection, deleteDoc, query, orderBy, limit, doc, serverTimestamp } from "firebase/firestore";
+import { setDoc, getDocs, getFirestore, collection, deleteDoc, orderBy, limit, doc, serverTimestamp, query } from "firebase/firestore";
 
 import "./styles.css";
 import LoginForm from "./LoginForm";
@@ -28,7 +28,6 @@ const db = getFirestore(firebaseApp);
 function App() {
 
   const [user] = useAuthState(auth);
-  
 
   return (
     <div className="App">
@@ -128,17 +127,41 @@ function SignIn() {
 
 function SignOut() {
   return auth.currentUser && (
-    <button className="sign-out" onClick={() => signOut()}>Sign Out</button>
+    <button className="sign-out" onClick={() => signOut(auth)}>Sign Out</button>
   )
 }
 
 
 function ChatRoom() {
+  
   const dummy = useRef();
-  const messagesRef = collection(db, 'messages');
-  const q = query(messagesRef, orderBy("createdAt"), limit(25));
 
-  const [messages] = useCollectionData(q, { idField: 'id' });
+  const messagesRef = collection(db, "messages");
+  const q = query(collection(db, "messages"), orderBy("createdAt"), limit(25));
+  //const query = query(messagesRef, orderBy("createdAt"), limit(25));
+  const [messages, setMessages] = useState([]);
+  useEffect(() => {
+    const fetchData = async () => {
+      const querySnapshot = await getDocs(q);
+      const fetchedMessages = querySnapshot.docs.map((doc) => doc.data());
+      setMessages(fetchedMessages);
+    };
+    fetchData();
+  }, []);
+
+/*   useEffect(() => {
+    async function fetchData() {
+      messages = await getDocs(q);
+    }
+    fetchData();
+  }, []); */
+
+
+  //const messagesRef = collection(db, 'messages');
+  //const q = query(messagesRef, orderBy("createdAt"), limit(25));
+
+  //const [messages] = useCollectionData(q, { idField: 'id' });
+
 
   const [formValue, setFormValue] = useState('');
 
@@ -148,12 +171,14 @@ function ChatRoom() {
 
     const { uid, photoURL } = auth.currentUser;
 
-    await messagesRef.add({
+    const messageId = Math.random().toString(36).substring(2, 10);
+
+    await setDoc(doc(db, "messages", messageId), {
       text: formValue,
       createdAt: serverTimestamp(),
       uid,
       photoURL
-    })
+    });
 
     setFormValue('');
     dummy.current.scrollIntoView({ behavior: 'smooth' });
