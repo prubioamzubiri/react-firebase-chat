@@ -56,12 +56,15 @@ function SignIn() {
 
   const signInWithGoogle = async () => {
     const provider = new GoogleAuthProvider();
-    const result = await signInWithPopup(auth, provider);
-
-    if(result.error){
-      document.getElementById("errorMessage").innerHTML = "<h2>"+result.error.code + " " + result.error.message + "</h2>";
+    await signInWithPopup(auth, provider).then((result) => {
+    }).catch((error) => {
+      var errorCode = error.code;
+      var errorMessage = error.message;
+      document.getElementById("errorMessage").innerHTML = "<h2>"+errorCode + " " + errorMessage + "</h2>";
     }
+    );
   }
+
 
   const logInPop = () => {
     if(!isShowSignup){
