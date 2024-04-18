@@ -1,16 +1,15 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, {useRef, useState } from 'react';
 import './App.css';
 
 import { initializeApp } from "firebase/app"
 import { getAuth, signInWithEmailAndPassword, GoogleAuthProvider, signInWithPopup, createUserWithEmailAndPassword, signOut } from 'firebase/auth';
-import { setDoc, getDocs, getFirestore, collection, deleteDoc, orderBy, limit, doc, serverTimestamp, query, Query, where, getDoc, onSnapshot, or } from "firebase/firestore";
+import { setDoc, getDocs, getFirestore, collection, deleteDoc, orderBy, limit, doc, serverTimestamp, query, where} from "firebase/firestore";
 
 import "./styles.css";
 import LoginForm from "./LoginForm";
 
 import { useAuthState } from 'react-firebase-hooks/auth';
 import { useCollectionData } from 'react-firebase-hooks/firestore';
-import { set } from 'firebase/database';
 
 
 const firebaseApp = initializeApp({
@@ -24,8 +23,6 @@ const firebaseApp = initializeApp({
 
 const auth = getAuth(firebaseApp);
 const db = getFirestore(firebaseApp);
-let messageListener = null;
-let messages = [];
 
 
 
@@ -60,6 +57,10 @@ function SignIn() {
   const signInWithGoogle = async () => {
     const provider = new GoogleAuthProvider();
     const result = await signInWithPopup(auth, provider);
+
+    if(result.error){
+      document.getElementById("errorMessage").innerHTML = "<h2>"+result.error.code + " " + result.error.message + "</h2>";
+    }
   }
 
   const logInPop = () => {
@@ -128,41 +129,20 @@ function SignIn() {
 }
 
 function SignOut() {
-  unsubscribe();
   return auth.currentUser && (
     <button className="sign-out" onClick={() => signOut(auth)}>Sign Out</button>
   )
 }
 
-/*function messageSubscription() {
-  const messagesRef = collection(db, "messages");
-  const q = query(messagesRef, orderBy("createdAt"), limit(25));
-  messages = [];
 
-  messageListener = onSnapshot(q, querySnapshot => {
-    querySnapshot.forEach(doc => {
-      messages.push(doc.data());
-    });
-  }
-  );
-}*/
 
-function unsubscribe() {
-  if(messageListener != null){
-    messageListener();
-    messageListener = null;
-  }
-}
 
 
 
 function ChatRoom() {
   
   const dummy = useRef();
-  const user = auth.currentUser;
-  
-  const messagesRef = collection(db, "messages");
-  const q = query(collection(db, "messages"), orderBy("createdAt"), limit(50));
+
 
   const [messages, loadingMessages, error, snapshot] = useCollectionData(query(
     collection(db, "messages"),
@@ -197,7 +177,7 @@ function ChatRoom() {
     
     <main>
 
-      {messages && messages.map(msg => <ChatMessage key={msg.id} message={msg} user ={user} />)}
+      {messages && messages.map(msg => <ChatMessage key={msg.id} message={msg} />)}
 
       <span ref={dummy}></span>
 
@@ -230,7 +210,7 @@ function deleteMessage(props) {
 function ChatMessage(props) {
   const { text, uid, photoURL } = props.message;
 
-  const messageClass = uid === props.user.uid ? 'sent' : 'received';
+  const messageClass = uid === auth.currentUser.uid ? 'sent' : 'received';
 
   return (
     <div className={`message ${messageClass}`}>
