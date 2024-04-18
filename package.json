@@ -10,7 +10,7 @@
     "firebase-tools": "^13.7.2",
     "react": "^16.13.1",
     "react-dom": "^16.13.1",
-    "react-firebase-hooks": "^2.2.0",
+    "react-firebase-hooks": "^5.1.0",
     "react-scripts": "3.4.3"
   },
   "scripts": {

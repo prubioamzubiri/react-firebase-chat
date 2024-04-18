@@ -3,13 +3,14 @@ import './App.css';
 
 import { initializeApp } from "firebase/app"
 import { getAuth, signInWithEmailAndPassword, GoogleAuthProvider, signInWithPopup, createUserWithEmailAndPassword, signOut } from 'firebase/auth';
-import { setDoc, getDocs, getFirestore, collection, deleteDoc, orderBy, limit, doc, serverTimestamp, query, Query, where, getDoc } from "firebase/firestore";
+import { setDoc, getDocs, getFirestore, collection, deleteDoc, orderBy, limit, doc, serverTimestamp, query, Query, where, getDoc, onSnapshot, or } from "firebase/firestore";
 
 import "./styles.css";
 import LoginForm from "./LoginForm";
 
 import { useAuthState } from 'react-firebase-hooks/auth';
 import { useCollectionData } from 'react-firebase-hooks/firestore';
+import { set } from 'firebase/database';
 
 
 const firebaseApp = initializeApp({
@@ -23,6 +24,9 @@ const firebaseApp = initializeApp({
 
 const auth = getAuth(firebaseApp);
 const db = getFirestore(firebaseApp);
+let messageListener = null;
+let messages = [];
+
 
 
 function App() {
@@ -52,6 +56,7 @@ function SignIn() {
   const [isShowSignup, setIsShowSignup] = useState(true);
 
 
+
   const signInWithGoogle = async () => {
     const provider = new GoogleAuthProvider();
     const result = await signInWithPopup(auth, provider);
@@ -77,7 +82,6 @@ function SignIn() {
     signInWithEmailAndPassword(auth, email, password).then((userCredential) => {
       // Signed in
       var user = userCredential.user;
-      // ...
     })
     .catch((error) => {
       var errorCode = error.code;
@@ -94,13 +98,11 @@ function SignIn() {
     createUserWithEmailAndPassword(auth, email, password).then((userCredential) => {
       // Signed in
       var user = userCredential.user;
-      // ...
     }
     ).catch((error) => {
       var errorCode = error.code;
       var errorMessage = error.message;
       document.getElementById("errorMessage").innerHTML = "<h2>"+errorCode + " " + errorMessage + "</h2>";
-      // ..
     });
     setIsShowSignup((isShowSignup) => !isShowSignup);
   }
@@ -126,41 +128,48 @@ function SignIn() {
 }
 
 function SignOut() {
+  unsubscribe();
   return auth.currentUser && (
     <button className="sign-out" onClick={() => signOut(auth)}>Sign Out</button>
   )
 }
 
+/*function messageSubscription() {
+  const messagesRef = collection(db, "messages");
+  const q = query(messagesRef, orderBy("createdAt"), limit(25));
+  messages = [];
+
+  messageListener = onSnapshot(q, querySnapshot => {
+    querySnapshot.forEach(doc => {
+      messages.push(doc.data());
+    });
+  }
+  );
+}*/
+
+function unsubscribe() {
+  if(messageListener != null){
+    messageListener();
+    messageListener = null;
+  }
+}
+
+
 
 function ChatRoom() {
   
   const dummy = useRef();
-
+  const user = auth.currentUser;
+  
   const messagesRef = collection(db, "messages");
-  const q = query(collection(db, "messages"), orderBy("createdAt"), limit(25));
-  //const query = query(messagesRef, orderBy("createdAt"), limit(25));
-  const [messages, setMessages] = useState([]);
-  useEffect(() => {
-    const fetchData = async () => {
-      const querySnapshot = await getDocs(q);
-      const fetchedMessages = querySnapshot.docs.map((doc) => doc.data());
-      setMessages(fetchedMessages);
-    };
-    fetchData();
-  }, []);
+  const q = query(collection(db, "messages"), orderBy("createdAt"), limit(50));
 
-/*   useEffect(() => {
-    async function fetchData() {
-      messages = await getDocs(q);
-    }
-    fetchData();
-  }, []); */
+  const [messages, loadingMessages, error, snapshot] = useCollectionData(query(
+    collection(db, "messages"),
+    orderBy("createdAt"),
+    limit(50)
+));
 
-
-  //const messagesRef = collection(db, 'messages');
-  //const q = query(messagesRef, orderBy("createdAt"), limit(25));
-
-  //const [messages] = useCollectionData(q, { idField: 'id' });
 
 
   const [formValue, setFormValue] = useState('');
@@ -185,9 +194,10 @@ function ChatRoom() {
   }
 
   return (<>
+    
     <main>
 
-      {messages && messages.map(msg => <ChatMessage key={msg.id} message={msg} />)}
+      {messages && messages.map(msg => <ChatMessage key={msg.id} message={msg} user ={user} />)}
 
       <span ref={dummy}></span>
 
@@ -203,7 +213,8 @@ function ChatRoom() {
   </>)
 }
 
-function deleteMessage(message) {  
+function deleteMessage(props) {  
+  var message = props.message;
   //deleteDoc(doc(db, "messages", message));
   var collectionRef = collection(db,"messages");
   var q = query(collectionRef, where("uid", "==", message.uid), where("text", "==", message.text), where("createdAt", "==", message.createdAt));
@@ -212,21 +223,21 @@ function deleteMessage(message) {
     var docId = firstDoc.id;
     var documentRef = doc(db, "messages", docId)
     await deleteDoc(documentRef);
-    // Do something with the first document
+
   });
 }
 
 function ChatMessage(props) {
   const { text, uid, photoURL } = props.message;
 
-  const messageClass = uid === auth.currentUser.uid ? 'sent' : 'received';
+  const messageClass = uid === props.user.uid ? 'sent' : 'received';
 
   return (
     <div className={`message ${messageClass}`}>
       <img alt="Profile" src={photoURL || 'https://cdn4.iconfinder.com/data/icons/flat-pro-business-set-1/32/people-customer-unknown-512.png'} />
       <p>{text}</p>
       {uid === auth.currentUser.uid && (
-        <button id="delete_message" onClick={() => deleteMessage(props.message)}>
+        <button id="delete_message" onClick={() => deleteMessage(props)}>
           <span role="img" aria-label="delete">🗑️</span>
         </button>
       )}
