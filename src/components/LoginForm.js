@@ -9,7 +9,7 @@ const LoginForm = ({ isShowLogin, topText, searchId, submit}) => {
     <div className={isShowLogin ? "activeshow" : "show"}>
       <div className="login-form">
         <div className="form-box solid">
-          <form action = {submit}>
+          <form>
             <h1 className="login-text">{topText}</h1>
             <label>Email</label>
             <br></br>
