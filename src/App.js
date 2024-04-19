@@ -1,9 +1,9 @@
-import React, {useRef, useState } from 'react';
+import React from 'react';
 import './styles/App.css';
 import "./styles/styles.css";
 
 import { initializeApp } from "firebase/app"
-import { getAuth, signOut} from 'firebase/auth';
+import { getAuth } from 'firebase/auth';
 import {getFirestore} from "firebase/firestore";
 
 import { useAuthState } from 'react-firebase-hooks/auth';
