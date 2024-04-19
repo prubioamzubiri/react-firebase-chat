@@ -12,6 +12,7 @@ import { useAuthState } from 'react-firebase-hooks/auth';
 
 import SignIn from './components/SignIn';
 import ChatRoom from './components/ChatRoom';
+import SignOut from './components/SignOutNavBar';
 
 
 const firebaseApp = initializeApp({
@@ -36,7 +37,7 @@ function App() {
     <div className="App">
       <header>
         <h1>⚛️🔥💬</h1>
-        <SignOut />
+        <SignOut auth = {auth}/>
       </header>
 
       <section>
@@ -46,18 +47,5 @@ function App() {
     </div>
   );
 }
-
-function SignOut() {
-  return auth.currentUser && (
-    <button className="sign-out" onClick={() => signOut(auth)}>Sign Out</button>
-  )
-}
-
-
-
-
-
-
-
 
 export default App;

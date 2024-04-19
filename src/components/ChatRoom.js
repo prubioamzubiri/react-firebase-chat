@@ -11,7 +11,7 @@ function ChatRoom(props) {
 
     db = props.firestore;
     auth = props.auth;
-  
+    
     const dummy = useRef();
   
   
